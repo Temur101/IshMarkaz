@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-brand-black text-brand-text antialiased overflow-x-hidden;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+    background-clip: padding-box;
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #FF6B00;
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #FF8533;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari and Opera */
+}
+
+/* Transitions & Animations */
+:root {
+  --transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-smooth {
+  transition: all var(--transition-normal);
+}
+
+.hover-lift {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Chat Switching Animation */
+.chat-window-enter {
+  animation: fade-in-scale 0.2s ease-out forwards;
+}
+
+@keyframes fade-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Message Animation */
+.message-appear {
+  animation: message-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes message-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Mobile Scroll Fix */
+@media (max-width: 1023px) {
+  .chat-container-mobile {
+    height: calc(100svh - 64px);
+    overflow: hidden;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    background: #0D0D0D;
+  }
+}
+
+@media (min-width: 1024px) {
+  .chat-container-mobile {
+    height: calc(100svh - 140px);
+    overflow: hidden;
+  }
+}
+
+/* Sidebar Animation */
+.sidebar-transition {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Backdrop */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
