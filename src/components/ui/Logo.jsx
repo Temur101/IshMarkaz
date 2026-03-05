@@ -6,32 +6,26 @@ export const Logo = ({ className = "h-16 w-auto object-contain transition-transf
     const { settings, loading, error } = useAppSettings();
     const [imgError, setImgError] = useState(false);
 
-    // Add a unique timestamp to bypass browser and Supabase CDN caching
-    const [cacheBuster] = useState(Date.now());
+    // Fallback logo path
+    const DEFAULT_LOGO = "/logo.png";
 
-    if (loading) {
-        return (
-            <div className={`flex items-center justify-center bg-white/5 rounded-xl animate-pulse ${className.replace('object-contain', '')}`}>
-                <Loader2 className="w-5 h-5 animate-spin text-brand-orange/50" />
-            </div>
-        );
-    }
-
-    // If there is an error fetching the URL, or the image fails to load, or the URL is missing
-    if (error || imgError || !settings?.logo_url) {
-        return (
-            <div className={`flex items-center justify-center bg-white/5 border border-white/10 rounded-xl ${className.replace('object-contain', '')}`} title="Логотип отсутствует">
-                <ImageOff className="w-6 h-6 text-white/20" />
-            </div>
-        );
-    }
+    // If we are loading and don't have a cached URL yet, or if there's an error
+    // we show the default logo immediately instead of a loader to make it feel "instant"
+    const logoSrc = (!loading && !error && !imgError && settings?.logo_url)
+        ? settings.logo_url
+        : DEFAULT_LOGO;
 
     return (
         <img
-            src={`${settings.logo_url}?t=${cacheBuster}`}
+            src={logoSrc}
             alt="IshMarkaz"
             className={className}
-            onError={() => setImgError(true)}
+            onError={() => {
+                // If the remote logo fails, we fall back to the local one
+                if (logoSrc !== DEFAULT_LOGO) {
+                    setImgError(true);
+                }
+            }}
         />
     );
 };

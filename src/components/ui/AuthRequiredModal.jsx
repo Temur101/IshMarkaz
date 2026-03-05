@@ -27,41 +27,39 @@ export const AuthRequiredModal = ({ isOpen, onClose }) => {
                 </button>
 
                 <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-brand-orange/10 rounded-full flex items-center justify-center text-brand-orange mb-6">
-                        <Lock size={32} />
+                    <div className="w-20 h-20 bg-brand-orange/10 rounded-full flex items-center justify-center text-brand-orange mb-8 shadow-inner border border-brand-orange/20">
+                        <Lock size={36} className="animate-pulse" />
                     </div>
 
-                    <h2 className="text-2xl font-bold text-white mb-3">
-                        {t('authModal.title') || "Authorization Required"}
+                    <h2 className="text-3xl font-black text-white mb-4 tracking-tight">
+                        {t('authModal.title')}
                     </h2>
 
-                    <p className="text-brand-muted text-lg mb-8 leading-relaxed">
-                        {t('authModal.text') || "You need to log in or create an account to view jobs."}
+                    <p className="text-brand-muted text-lg mb-10 leading-relaxed font-medium">
+                        {t('authModal.actionText')}
                     </p>
 
-                    <div className="flex flex-col w-full gap-3">
+                    <div className="flex flex-col w-full gap-4">
                         <Button
-                            className="w-full flex items-center justify-center gap-2"
-                            size="lg"
+                            className="w-full py-5 text-lg font-black rounded-2xl shadow-xl shadow-brand-orange/20 flex items-center justify-center gap-3 active:scale-[0.98] transition-all"
                             onClick={() => {
                                 onClose();
                                 navigate('/login');
                             }}
                         >
-                            <LogIn size={20} />
-                            {t('nav.login') || "Login"}
+                            <LogIn size={24} />
+                            {t('authModal.login')}
                         </Button>
                         <Button
                             variant="secondary"
-                            className="w-full flex items-center justify-center gap-2"
-                            size="lg"
+                            className="w-full py-5 text-lg font-black rounded-2xl border-white/5 bg-white/5 hover:bg-white/10 flex items-center justify-center gap-3 active:scale-[0.98] transition-all"
                             onClick={() => {
                                 onClose();
                                 navigate('/register');
                             }}
                         >
-                            <UserPlus size={20} />
-                            {t('nav.getStarted') || "Register"}
+                            <UserPlus size={24} />
+                            {t('authModal.register')}
                         </Button>
                     </div>
                 </div>

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LandingLayout } from '../components/layout/LandingLayout';
@@ -8,28 +7,25 @@ import { Card } from '../components/ui/Card';
 import { ArrowRight, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
-import { AuthRequiredModal } from '../components/ui/AuthRequiredModal';
+import { useEffect } from 'react';
 
 export default function LandingPage() {
     const { t } = useLanguage();
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (user) {
+            navigate('/jobs/all');
+        }
+    }, [user, navigate]);
 
     const handleFindJobClick = () => {
-        if (user) {
-            navigate('/dashboard');
-        } else {
-            setIsAuthModalOpen(true);
-        }
+        navigate('/jobs/all');
     };
 
     return (
         <LandingLayout>
-            <AuthRequiredModal
-                isOpen={isAuthModalOpen}
-                onClose={() => setIsAuthModalOpen(false)}
-            />
             {/* Hero Section */}
             <section className="relative px-6 py-24 md:py-32 flex flex-col items-center text-center">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none" />

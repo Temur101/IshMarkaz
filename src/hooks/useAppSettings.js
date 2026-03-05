@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
-// Simple memory cache so we don't fetch settings repeatedly
+// Simple memory and persistent cache so we don't fetch settings repeatedly
 let cachedSettings = null;
+try {
+    const saved = localStorage.getItem('app_settings');
+    if (saved) cachedSettings = JSON.parse(saved);
+} catch (e) {
+    console.warn('Failed to parse cached app settings');
+}
+
 let fetchPromise = null;
 let appSettingsChannel = null;
 let subscribersCount = 0;
@@ -39,6 +46,7 @@ export const useAppSettings = () => {
                 const data = await fetchPromise;
                 if (isMounted) {
                     cachedSettings = data;
+                    if (data) localStorage.setItem('app_settings', JSON.stringify(data));
                     setSettings(data);
                     setLoading(false);
                 }
@@ -71,6 +79,7 @@ export const useAppSettings = () => {
                             .single();
                         if (data) {
                             cachedSettings = data;
+                            localStorage.setItem('app_settings', JSON.stringify(data));
                             // Need to notify all hooks, but here we just update cache. 
                             // Individual components will need to handle local state update, which is complex for a hook.
                             // For simplicity, we just run optimistic updates when cache changes.

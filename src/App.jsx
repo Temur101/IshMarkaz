@@ -20,25 +20,18 @@ import { ChatProvider } from './context/ChatContext';
 
 function App() {
   return (
-    <AuthProvider>
-      <LanguageProvider>
-        <TaskProvider>
-          <ChatProvider>
-            <ModalProvider>
-              <Router>
+    <Router>
+      <AuthProvider>
+        <LanguageProvider>
+          <TaskProvider>
+            <ChatProvider>
+              <ModalProvider>
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
+                  <Route path="/jobs/:category" element={<Dashboard />} />
+                  <Route path="/task/:id" element={<TaskDetail />} />
+                  <Route path="/jobs" element={<Navigate to="/jobs/all" replace />} />
                   <Route path="/dashboard" element={<Navigate to="/jobs/all" replace />} />
-                  <Route path="/jobs/:category" element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/task/:id" element={
-                    <ProtectedRoute>
-                      <TaskDetail />
-                    </ProtectedRoute>
-                  } />
                   <Route path="/profile" element={
                     <ProtectedRoute>
                       <Profile />
@@ -65,14 +58,14 @@ function App() {
                   <Route path="/how-it-works" element={<HowItWorks />} />
                   <Route path="/formats" element={<Formats />} />
                   <Route path="/for-employers" element={<ForEmployers />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
+                  <Route path="*" element={<Navigate to="/jobs/all" replace />} />
                 </Routes>
-              </Router>
-            </ModalProvider>
-          </ChatProvider>
-        </TaskProvider>
-      </LanguageProvider>
-    </AuthProvider>
+              </ModalProvider>
+            </ChatProvider>
+          </TaskProvider>
+        </LanguageProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

@@ -11,7 +11,8 @@ import {
     Clock,
     LayoutGrid,
     Heart,
-    LogOut
+    LogOut,
+    LifeBuoy
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Logo } from '../ui/Logo';
@@ -23,10 +24,10 @@ import { Button } from '../ui/Button';
 
 export const Sidebar = ({ isOpen, onClose }) => {
     const { t, language } = useLanguage();
-    const { signOut } = useAuth();
+    const { user, signOut } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
-    const { openJobModal } = useModal();
+    const { openJobModal, openSupportModal, openAuthModal } = useModal();
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     const jobCategories = [
@@ -44,13 +45,39 @@ export const Sidebar = ({ isOpen, onClose }) => {
         { icon: User, label: t('nav.profile'), path: "/profile" },
     ];
 
-    const renderNavItem = (item) => {
+    const renderNavItem = (item, isProtected = false) => {
         const isActive = location.pathname === item.path || (item.path === '/jobs/all' && location.pathname === '/dashboard');
+
+        const handleClick = (e) => {
+            if (isProtected && !user) {
+                e.preventDefault();
+                openAuthModal();
+                return;
+            }
+            if (onClose) onClose();
+        };
+
+        if (isProtected && !user) {
+            return (
+                <button
+                    key={item.path}
+                    onClick={() => {
+                        openAuthModal();
+                        if (onClose) onClose();
+                    }}
+                    className="flex w-full items-center gap-3 px-4 py-3 rounded-xl transition-all text-brand-muted hover:bg-white/5 hover:text-white group"
+                >
+                    <item.icon size={20} className="text-brand-muted group-hover:text-white" />
+                    <span className="font-medium">{item.label}</span>
+                </button>
+            );
+        }
+
         return (
             <Link
                 key={item.path}
                 to={item.path}
-                onClick={() => onClose && onClose()}
+                onClick={handleClick}
                 className={clsx(
                     "flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
                     isActive
@@ -97,7 +124,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
                             Browse Jobs
                         </h2>
                         <div className="space-y-1">
-                            {jobCategories.map(renderNavItem)}
+                            {jobCategories.map(item => renderNavItem(item, false))}
                         </div>
                     </div>
 
@@ -106,13 +133,24 @@ export const Sidebar = ({ isOpen, onClose }) => {
                             Personal
                         </h2>
                         <div className="space-y-1">
-                            {personalItems.map(renderNavItem)}
+                            {personalItems.map(item => renderNavItem(item, true))}
                         </div>
                     </div>
                 </nav>
 
                 <div className="mt-auto pt-6 border-t border-white/5 space-y-4">
                     <LanguageSwitcher />
+
+                    <button
+                        onClick={() => {
+                            openSupportModal();
+                            onClose && onClose();
+                        }}
+                        className="flex w-full items-center gap-3 px-4 py-3 rounded-xl transition-all text-brand-muted hover:bg-white/5 hover:text-brand-orange group"
+                    >
+                        <LifeBuoy size={20} className="text-brand-muted group-hover:text-brand-orange" />
+                        <span className="font-medium">{t('support.contact')}</span>
+                    </button>
 
                     <button
                         onClick={() => setIsLogoutModalOpen(true)}
@@ -122,46 +160,45 @@ export const Sidebar = ({ isOpen, onClose }) => {
                         <span className="font-medium">{language === 'ru' ? 'Выход' : 'Logout'}</span>
                     </button>
                 </div>
+            </aside>
 
-                {/* Logout Confirmation Modal */}
-                {isLogoutModalOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <div
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-                            onClick={() => setIsLogoutModalOpen(false)}
-                        />
-                        <div className="relative w-full max-w-sm bg-brand-gray border border-white/10 rounded-2xl shadow-2xl p-6 animate-in fade-in zoom-in-95 duration-200">
-                            <div className="text-center mb-6">
-                                <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
-                                    <LogOut size={28} className="text-red-400" />
-                                </div>
-                                <h2 className="text-xl font-bold text-white mb-2">
-                                    {language === 'ru' ? 'Выход из аккаунта' : 'Logout Confirmation'}
-                                </h2>
-                                <p className="text-brand-muted text-sm px-4">
-                                    {language === 'ru' ? 'Вы уверены, что хотите выйти из аккаунта?' : 'Are you sure you want to log out of your account?'}
-                                </p>
+            {/* Logout Confirmation Modal - Moved outside aside to fix centering */}
+            {isLogoutModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div
+                        className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-300"
+                        onClick={() => setIsLogoutModalOpen(false)}
+                    />
+                    <div className="relative w-full max-w-sm bg-brand-gray border border-white/10 rounded-3xl shadow-2xl p-8 animate-in fade-in zoom-in-95 duration-300 ring-1 ring-white/10">
+                        <div className="text-center mb-8">
+                            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20 shadow-inner">
+                                <LogOut size={32} className="text-red-400" />
                             </div>
+                            <h2 className="text-2xl font-black text-white mb-3">
+                                {language === 'ru' ? 'Выход из аккаунта' : 'Logout Confirmation'}
+                            </h2>
+                            <p className="text-brand-muted text-base leading-relaxed px-2">
+                                {language === 'ru' ? 'Вы уверены, что хотите выйти из аккаунта?' : 'Are you sure you want to log out of your account?'}
+                            </p>
+                        </div>
 
-                            <div className="flex gap-3">
-                                <Button
-                                    variant="secondary"
-                                    className="flex-1"
-                                    onClick={() => setIsLogoutModalOpen(false)}
-                                >
-                                    {language === 'ru' ? 'Закрыть' : 'Close'}
-                                </Button>
-                                <Button
-                                    className="flex-1 bg-red-500 hover:bg-red-600 border-red-500 text-white font-bold"
-                                    onClick={handleSignOut}
-                                >
-                                    {language === 'ru' ? 'Выйти' : 'Logout'}
-                                </Button>
-                            </div>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <button
+                                onClick={() => setIsLogoutModalOpen(false)}
+                                className="flex-1 py-4 px-6 rounded-xl font-bold bg-white/5 hover:bg-white/10 text-white border border-white/5 transition-all order-2 sm:order-1"
+                            >
+                                {language === 'ru' ? 'Закрыть' : 'Close'}
+                            </button>
+                            <button
+                                onClick={handleSignOut}
+                                className="flex-1 py-4 px-6 rounded-xl bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-black text-lg shadow-lg shadow-red-500/20 transition-all order-1 sm:order-2"
+                            >
+                                {language === 'ru' ? 'Выйти' : 'Logout'}
+                            </button>
                         </div>
                     </div>
-                )}
-            </aside>
+                </div>
+            )}
         </>
     );
 };

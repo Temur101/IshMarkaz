@@ -68,11 +68,15 @@ export const en = {
             fullTime: "Stable careers for your future.",
             noExperience: "Start your career today.",
             temporary: "Quick tasks for quick pay."
-        }
+        },
+        vacanciesCounter: "{count} jobs available on the platform"
     },
     authModal: {
         title: "Authorization Required",
         text: "You need to log in or create an account to view jobs.",
+        actionText: "To apply for this job you need to sign in.",
+        login: "Log In",
+        register: "Register"
     },
     myJobs: {
         description: "Manage and track your published positions",
@@ -277,5 +281,11 @@ export const en = {
             desc: "Join companies that have cut their hiring time by 60% by switching from interviews to practical evaluations.",
             button: "Register as Employer"
         }
+    },
+    support: {
+        contact: "Contact Support",
+        title: "🛟 IshMarkaz Support",
+        write: "Write",
+        welcome: "Hello! This is IshMarkaz Support. Write your question or problem, we will try to help."
     }
 };

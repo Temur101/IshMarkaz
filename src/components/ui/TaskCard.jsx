@@ -9,12 +9,14 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTasks } from '../../context/TaskContext';
 import { useAuth } from '../../context/AuthContext';
 import { useChat } from '../../context/ChatContext';
+import { useModal } from '../../context/ModalContext';
 
 export const TaskCard = ({ task }) => {
     const { t, language } = useLanguage();
     const { user } = useAuth();
     const { interests, toggleInterest } = useTasks();
     const { startChat } = useChat();
+    const { openAuthModal } = useModal();
     const navigate = useNavigate();
     const [isInterestedLoading, setIsInterestedLoading] = useState(false);
 
@@ -24,7 +26,10 @@ export const TaskCard = ({ task }) => {
     const handleToggleInterest = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!user) return;
+        if (!user) {
+            openAuthModal();
+            return;
+        }
         setIsInterestedLoading(true);
         await toggleInterest(task.id);
         setIsInterestedLoading(false);
@@ -33,7 +38,11 @@ export const TaskCard = ({ task }) => {
     const handleContact = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (user && task) {
+        if (!user) {
+            openAuthModal();
+            return;
+        }
+        if (task) {
             startChat(task.user_id || task.creatorId, task.id);
             navigate('/messages');
         }
@@ -92,7 +101,21 @@ export const TaskCard = ({ task }) => {
                             {t('task.closed') || "Closed"}
                         </Badge>
                     )}
+                    {task.interest_count > 0 && (
+                        <span className="flex items-center gap-1 text-xs font-bold text-brand-orange bg-brand-orange/5 px-2 py-0.5 rounded border border-brand-orange/10">
+                            <Heart size={10} fill="currentColor" />
+                            {task.interest_count} {language === 'ru' ? 'проявили интерес' : (language === 'uz' ? 'qiziqish bildirdi' : 'interested')}
+                        </span>
+                    )}
                 </div>
+
+                {task.created_at && (new Date() - new Date(task.created_at)) < 86400000 && (
+                    <div className="absolute top-4 right-4 animate-in fade-in zoom-in duration-500">
+                        <span className="px-3 py-1 bg-brand-orange text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-brand-orange/30 border border-white/20">
+                            NEW
+                        </span>
+                    </div>
+                )}
 
                 <h3 className="text-xl font-bold group-hover:text-brand-orange transition-colors">
                     {getLocalizedContent(task.title)}
@@ -118,8 +141,8 @@ export const TaskCard = ({ task }) => {
                                     onClick={handleToggleInterest}
                                     disabled={isInterestedLoading}
                                     className={`p-2 rounded-full transition-all ${isInterested
-                                            ? 'bg-brand-orange/20 text-brand-orange'
-                                            : 'bg-white/5 text-white/40 border border-white/5'
+                                        ? 'bg-brand-orange/20 text-brand-orange'
+                                        : 'bg-white/5 text-white/40 border border-white/5'
                                         }`}
                                 >
                                     <Heart size={18} fill={isInterested ? "currentColor" : "none"} />

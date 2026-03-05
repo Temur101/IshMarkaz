@@ -3,7 +3,7 @@ import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { Send, User, Trash2, MessageSquare, ArrowLeft } from 'lucide-react';
+import { Send, User, Trash2, MessageSquare, ArrowLeft, Check, CheckCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useChat } from '../context/ChatContext';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +12,7 @@ import { UserProfileModal } from '../components/ui/UserProfileModal';
 
 export default function Chat() {
     const { t, language } = useLanguage();
-    const { chats, sendMessage, deleteChat, clearChat, activeChatId, setActiveChatId } = useChat();
+    const { chats, sendMessage, deleteChat, clearChat, activeChatId, setActiveChatId, loadMoreMessages, loadingMore, hasMore, markAsRead } = useChat();
     const { user } = useAuth();
     const { tasks } = useTasks();
     const [selectedChatId, setSelectedChatId] = useState(activeChatId || (chats.length > 0 && window.innerWidth > 1024 ? chats[0].id : null));
@@ -22,6 +22,8 @@ export default function Chat() {
 
     // Auto-scroll logic ref
     const messagesEndRef = useRef(null);
+    const scrollContainerRef = useRef(null);
+    const [prevScrollHeight, setPrevScrollHeight] = useState(0);
 
     // Profile modal state
     const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -53,16 +55,33 @@ export default function Chat() {
         }
     }, [chats, selectedChatId]);
 
-    // Scroll to bottom when messages change
+    // Scroll to bottom when messages change and mark as read
     useEffect(() => {
-        if (selectedChat?.messages) {
+        if (selectedChat?.messages && !loadingMore) {
             scrollToBottom();
+
+            // Mark as read if user is looking at the chat
+            if (selectedChatId) {
+                markAsRead(selectedChatId);
+            }
+        } else if (loadingMore && scrollContainerRef.current) {
+            // Maintain scroll position when loading more (older) messages
+            const container = scrollContainerRef.current;
+            container.scrollTop = container.scrollHeight - prevScrollHeight;
         }
-    }, [selectedChat?.messages]);
+    }, [selectedChat?.messages, loadingMore]);
 
     const scrollToBottom = () => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight } = e.currentTarget;
+        if (scrollTop === 0 && hasMore && !loadingMore) {
+            setPrevScrollHeight(scrollHeight);
+            loadMoreMessages();
         }
     };
 
@@ -163,6 +182,8 @@ export default function Chat() {
                                             ) : (
                                                 <User size={24} />
                                             )}
+                                            {/* Status Dot */}
+                                            <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-brand-black ${chat.isOnline ? 'bg-green-500' : 'bg-gray-500'}`} />
                                         </button>
                                         <div className="flex-1 min-w-0 overflow-hidden flex flex-col justify-center">
                                             {/* Top row: Name */}
@@ -175,10 +196,18 @@ export default function Chat() {
                                                     {chat.company}
                                                 </button>
                                             </div>
-                                            <div className="text-xs text-brand-orange/70 mt-0.5">
-                                                {chat.messages.length > 0 ? (language === 'ru' ? 'Активный диалог' : 'Faol muloqot') : (language === 'ru' ? 'В сети' : 'Onlayn')}
+                                            <div className={`text-xs mt-0.5 font-medium ${chat.isOnline ? 'text-green-500' : 'text-brand-muted'}`}>
+                                                {chat.isOnline
+                                                    ? (language === 'ru' ? 'В сети' : 'Onlayn')
+                                                    : (language === 'ru' ? 'Был(а) недавно' : 'Yaqinda bo\'lgan')}
                                             </div>
                                         </div>
+                                        {/* Unread dot */}
+                                        {chat.messages.filter(m => m.senderId === chat.otherPartyId && !m.is_read).length > 0 && (
+                                            <div className="w-5 h-5 bg-brand-orange rounded-full flex items-center justify-center text-[10px] text-white font-bold animate-pulse">
+                                                {chat.messages.filter(m => m.senderId === chat.otherPartyId && !m.is_read).length}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex items-center justify-between gap-2 w-full pl-14">
                                         <div className="text-sm text-brand-muted truncate flex-1">
@@ -240,6 +269,8 @@ export default function Chat() {
                                     ) : (
                                         selectedChat.company.charAt(0)
                                     )}
+                                    {/* Header Status Dot */}
+                                    <div className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-brand-black ${selectedChat.isOnline ? 'bg-green-500' : 'bg-gray-500'}`} />
                                 </button>
                                 <div>
                                     {/* Clickable name in header */}
@@ -250,6 +281,11 @@ export default function Chat() {
                                     >
                                         {selectedChat.company}
                                     </button>
+                                    <div className={`text-[11px] font-medium leading-none ${selectedChat.isOnline ? 'text-green-500' : 'text-brand-muted'}`}>
+                                        {selectedChat.isOnline
+                                            ? (language === 'ru' ? 'В сети' : 'Onlayn')
+                                            : (language === 'ru' ? 'Был(а) недавно' : 'Yaqinda bo\'lgan')}
+                                    </div>
                                 </div>
                             </div>
                             <div className="flex gap-2">
@@ -269,7 +305,16 @@ export default function Chat() {
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 custom-scrollbar">
+                        <div
+                            ref={scrollContainerRef}
+                            onScroll={handleScroll}
+                            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 custom-scrollbar"
+                        >
+                            {loadingMore && (
+                                <div className="flex justify-center py-4">
+                                    <div className="w-6 h-6 border-2 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
+                                </div>
+                            )}
                             {selectedChat.messages.length > 0 ? (
                                 Object.entries(groupMessagesByDate(selectedChat.messages)).map(([date, dateMessages]) => (
                                     <div key={date} className="space-y-4">
@@ -318,8 +363,17 @@ export default function Chat() {
                                                         <div className="break-words font-medium overflow-wrap-anywhere">
                                                             {msg.text}
                                                         </div>
-                                                        <div className={`text-[10px] whitespace-nowrap opacity-70 ml-auto ${msg.senderId === user?.id ? 'text-white/90' : 'text-brand-muted'}`}>
+                                                        <div className={`text-[10px] whitespace-nowrap opacity-70 ml-auto flex items-center gap-1 ${msg.senderId === user?.id ? 'text-white/90' : 'text-brand-muted'}`}>
                                                             {msg.time}
+                                                            {msg.senderId === user?.id && (
+                                                                <span className="ml-0.5">
+                                                                    {msg.is_read ? (
+                                                                        <CheckCheck size={14} className="text-white" />
+                                                                    ) : (
+                                                                        <Check size={14} className="text-white/60" />
+                                                                    )}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>

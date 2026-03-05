@@ -61,7 +61,15 @@ export const uz = {
             fullTime: "Kelajagingiz uchun barqaror karyera.",
             noExperience: "Karyerangizni bugun boshlang.",
             temporary: "Tezkor vazifalar, tezkor to'lov."
-        }
+        },
+        vacanciesCounter: "Platformada {count} ta ish mavjud"
+    },
+    authModal: {
+        title: "Avtorizatsiya talab qilinadi",
+        text: "Vakansiyalarni ko'rish uchun tizimga kirishingiz yoki hisob yaratishingiz kerak.",
+        actionText: "Vakansiyaga javob berish uchun avval akkauntga kirishingiz kerak.",
+        login: "Kirish",
+        register: "Ro'yxatdan o'tish"
     },
     task: {
         posted: "joylandi",
@@ -247,5 +255,11 @@ export const uz = {
             desc: "Intervyulardan amaliy baholashga o'tish orqali ishga olish vaqtini 60% ga qisqartirgan kompaniyalarga qo'shiling.",
             button: "Ish beruvchi sifatida ro'yxatdan o'tish"
         }
+    },
+    support: {
+        contact: "Qo'llab-quvvatlash bilan bog'lanish",
+        title: "🛟 IshMarkaz yordami",
+        write: "Yozish",
+        welcome: "Assalomu alaykum! Bu IshMarkaz qo'llab-quvvatlash xizmati. Savolingiz yoki muammoingizni yozing, biz yordam berishga harakat qilamiz."
     }
 };

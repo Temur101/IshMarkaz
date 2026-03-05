@@ -6,14 +6,16 @@ import { useModal } from '../context/ModalContext';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { TaskCard } from '../components/ui/TaskCard';
-import { Search, Plus } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useTasks } from '../context/TaskContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Dashboard() {
     const { t, language } = useLanguage();
     const { tasks, loading } = useTasks();
-    const { openJobModal } = useModal();
+    const { user } = useAuth();
+    const { openAuthModal } = useModal();
     const { category } = useParams();
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -95,10 +97,32 @@ export default function Dashboard() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold mb-2">{getPageTitle()}</h1>
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center gap-1.5 px-3 py-1 bg-brand-orange/10 border border-brand-orange/20 rounded-full">
+                            <div className="w-2 h-2 bg-brand-orange rounded-full animate-pulse" />
+                            <span className="text-sm font-bold text-brand-orange uppercase tracking-wider">
+                                {t('dashboard.vacanciesCounter').replace('{count}', tasks.length)}
+                            </span>
+                        </div>
+                        {tasks.filter(t => {
+                            const diff = new Date() - new Date(t.created_at);
+                            return diff < 86400000;
+                        }).length > 0 && (
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
+                                    <span className="text-sm font-bold text-green-500 uppercase tracking-wider">
+                                        +{tasks.filter(t => {
+                                            const diff = new Date() - new Date(t.created_at);
+                                            return diff < 86400000;
+                                        }).length} {language === 'ru' ? 'сегодня' : (language === 'uz' ? 'bugun' : 'today')}
+                                    </span>
+                                </div>
+                            )}
+                    </div>
                     <p className="text-brand-muted">{getPageDescription()}</p>
                 </div>
 
                 <div className="flex w-full md:w-auto gap-4">
+
                     <div className="relative w-full md:w-80">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" size={18} />
                         <Input

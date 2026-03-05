@@ -11,15 +11,15 @@ export const LanguageSwitcher = () => {
     ];
 
     return (
-        <div className="flex bg-white/5 rounded-full p-1 border border-white/5 backdrop-blur-sm">
+        <div className="flex w-fit mx-auto bg-white/5 rounded-full p-1.5 border border-white/5 backdrop-blur-sm gap-2">
             {languages.map((lang) => (
                 <button
                     key={lang.code}
                     onClick={() => setLanguage(lang.code)}
                     className={clsx(
-                        "px-3 py-1 rounded-full text-xs font-medium transition-all",
+                        "min-w-[56px] py-1.5 px-3 rounded-full text-xs font-bold transition-all tracking-widest",
                         language === lang.code
-                            ? "bg-brand-orange text-white shadow-lg shadow-orange-500/20"
+                            ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20"
                             : "text-brand-muted hover:text-white hover:bg-white/5"
                     )}
                 >

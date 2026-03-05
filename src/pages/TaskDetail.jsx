@@ -9,6 +9,7 @@ import { Clock, Briefcase, Zap, CheckCircle2, Building, Flag, ArrowLeft, Heart, 
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
+import { useModal } from '../context/ModalContext';
 
 export default function TaskDetail() {
     const { id } = useParams();
@@ -16,6 +17,7 @@ export default function TaskDetail() {
     const { tasks } = useTasks();
     const { user } = useAuth();
     const { startChat } = useChat();
+    const { openAuthModal } = useModal();
     const { interests, toggleInterest } = useTasks();
     const navigate = useNavigate();
     const [isInterestedLoading, setIsInterestedLoading] = useState(false);
@@ -23,14 +25,22 @@ export default function TaskDetail() {
     const task = tasks.find(t => t.id === parseInt(id) || t.id.toString() === id);
 
     const handleContact = () => {
-        if (user && task) {
+        if (!user) {
+            openAuthModal();
+            return;
+        }
+        if (task) {
             startChat(task.user_id || task.creatorId, task.id);
             navigate('/messages');
         }
     };
 
     const handleToggleInterest = async () => {
-        if (!user) return;
+        if (!user) {
+            openAuthModal();
+            return;
+        }
+        if (!task) return;
         setIsInterestedLoading(true);
         await toggleInterest(task.id);
         setIsInterestedLoading(false);
@@ -92,6 +102,15 @@ export default function TaskDetail() {
                                 <Zap size={24} className="text-brand-orange" />
                                 {task.payment}
                             </div>
+
+                            {task.interest_count > 0 && (
+                                <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-brand-orange/10 border border-brand-orange/20 rounded-full">
+                                    <Heart size={14} className="text-brand-orange" fill="currentColor" />
+                                    <span className="text-sm font-bold text-brand-orange">
+                                        {task.interest_count} {language === 'ru' ? 'проявили интерес' : (language === 'uz' ? 'qiziqish bildirdi' : 'interested')}
+                                    </span>
+                                </div>
+                            )}
 
                             {/* Mobile Action Icons */}
                             {!isOwner && (

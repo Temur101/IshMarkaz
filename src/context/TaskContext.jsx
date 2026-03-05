@@ -32,18 +32,25 @@ export const TaskProvider = ({ children }) => {
     const fetchTasks = async () => {
         setLoading(true);
         try {
-            // Sync trial completions before fetching
-            await supabase.rpc('sync_trial_completions');
+            // Sync trial completions before fetching (only for authenticated users)
+            if (user) {
+                await supabase.rpc('sync_trial_completions');
+            }
 
             const { data, error } = await supabase
                 .from('jobs')
-                .select('*')
+                .select('*, job_interests(count)')
                 .order('created_at', { ascending: false });
 
             if (error) {
                 console.error('Error fetching tasks:', error.message || error);
             } else {
-                setTasks(data || []);
+                // Formatting data to handle the count join correctly
+                const formattedTasks = (data || []).map(task => ({
+                    ...task,
+                    interest_count: task.job_interests?.[0]?.count || 0
+                }));
+                setTasks(formattedTasks);
             }
         } catch (err) {
             console.error('Fetch Tasks Network Error:', err);

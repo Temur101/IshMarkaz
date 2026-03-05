@@ -13,7 +13,7 @@ export const ProtectedRoute = ({ children }) => {
     }
 
     if (!user) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/jobs/all" replace />;
     }
 
     return children;
