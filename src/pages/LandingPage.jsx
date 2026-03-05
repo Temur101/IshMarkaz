@@ -14,11 +14,7 @@ export default function LandingPage() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (user) {
-            navigate('/jobs/all');
-        }
-    }, [user, navigate]);
+
 
     const handleFindJobClick = () => {
         navigate('/jobs/all');
