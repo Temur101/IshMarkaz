@@ -14,6 +14,7 @@ import Formats from './pages/Formats';
 import ForEmployers from './pages/ForEmployers';
 import MyJobs from './pages/MyJobs';
 import InterestedJobs from './pages/InterestedJobs';
+import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ChatProvider } from './context/ChatContext';
@@ -58,7 +59,7 @@ function App() {
                   <Route path="/how-it-works" element={<HowItWorks />} />
                   <Route path="/formats" element={<Formats />} />
                   <Route path="/for-employers" element={<ForEmployers />} />
-                  <Route path="*" element={<Navigate to="/jobs/all" replace />} />
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </ModalProvider>
             </ChatProvider>

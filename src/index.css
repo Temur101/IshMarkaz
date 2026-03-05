@@ -144,3 +144,86 @@
 .backdrop-blur-sm {
   backdrop-filter: blur(4px);
 }
+
+/* Page Animations */
+.animate-in {
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fade-in-anim;
+}
+
+.slide-in-from-bottom-4 {
+  animation-name: slide-in-bottom-4-anim;
+}
+
+.slide-in-from-bottom-10 {
+  animation-name: slide-in-bottom-10-anim;
+}
+
+.zoom-in-95 {
+  animation-name: zoom-in-95-anim;
+}
+
+@keyframes fade-in-anim {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-bottom-4-anim {
+  from {
+    transform: translateY(1rem);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-bottom-10-anim {
+  from {
+    transform: translateY(2.5rem);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoom-in-95-anim {
+  from {
+    transform: scale(0.95);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+.animate-float {
+  animation: float-anim 4s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-anim 5s ease-in-out 1s infinite;
+}
+
+@keyframes float-anim {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
