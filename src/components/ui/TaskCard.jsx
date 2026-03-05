@@ -77,7 +77,7 @@ export const TaskCard = ({ task }) => {
     };
 
     return (
-        <Card hover className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between group">
+        <Card hover className="relative flex flex-col md:flex-row gap-6 items-start md:items-center justify-between group">
             <div className="flex-1 space-y-3 w-full">
                 <div className="flex flex-wrap items-center gap-3 text-sm text-brand-muted">
                     <span className="flex items-center gap-1.5 font-medium text-white">
